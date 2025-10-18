@@ -23,7 +23,7 @@ class CreateCoursesTable extends Migration
             ],
             'description' => 
             [
-            'type' => 'TEXT'
+                'type' => 'TEXT'
             ],
             'created_at'  => 
             [

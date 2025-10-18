@@ -83,23 +83,66 @@ class AuthController extends BaseController
 
     public function dashboard()
     {
+        $session = session();
+
         if (! session()->get('isLoggedIn')) {
             return redirect()->to('/login');
         }
 
         $role =session()->get('role');
         $name =session()->get('name');
+        $user_id = session()->get('user_id');
 
-        if ($role === 'admin'){
-            session()->setFlashdata('message', 'Welcome Admin!');
-        } else {
-            session()->setFlashdata('message', 'Welcome Student!');
-        }
-
-        $data = [
+        //Initialize variables to avoid undefined variable errors
+         $data = [
             'role' => $role,
             'name' => $name,
+            $enrolledCourses = [],
+            $availableCourses = [],
+            $allCourses = [],
+            $allStudents = []
         ];
+
+        //Initialize models
+        $courseModel = new \App\Models\CourseModel();
+        $enrollmentModel = new \App\Models\EnrollmentModel();
+        $userModel = new \App\Models\UserModel();
+
+        if ($role === 'admin') {
+            $session->setFlashdata('message', 'Welcome Admin!');
+        } else {
+            $session->setFlashdata('message', 'Welcome Student!');
+        }
+
+        
+        if ($role === 'admin') {
+            //Get all courses
+            $allCourses = $courseModel->findAll();
+            //Get all students
+            $allStudents = $userModel->where('role', 'student')->findAll();
+
+            $data = [
+                'role' => $role,
+                'allCourses' => $allCourses,
+                'allStudents' => $allStudents,
+            ];
+        } else {
+            // Get courses the user is already enrolled in
+            $enrolledCourses = $enrollmentModel->getUserEnrollments($user_id);
+            // Get all courses
+            $allCourses = $courseModel->findAll();
+            // Filter available courses (not yet enrolled)
+            $enrolledIds = array_column($enrolledCourses, 'course_id');
+            $availableCourses = array_filter($allCourses, function ($course) use ($enrolledIds) {
+                return !in_array($course['id'], $enrolledIds);
+            });
+
+            $data = [
+                'role' => $role,
+                'enrolledCourses' => $enrolledCourses,
+                'availableCourses' => $availableCourses,
+            ];
+        }
         return view('auth/dashboard', $data);
     }
 }

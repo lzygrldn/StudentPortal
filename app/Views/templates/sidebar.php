@@ -22,7 +22,7 @@
         <!-- Common link -->
         <li><a href="#" class="text-white text-decoration-none d-block py-2"><i class="bi bi-house"></i> Home</a></li>
         <li><a href="#" class="text-white text-decoration-none d-block py-2"><i class="bi bi-person"></i> Profile</a></li>
-        <li><a href="#" class="text-white text-decoration-none d-block py-2"><i class="bi bi-journal-bookmark"></i> Courses</a></li>
+        <li><a href="<?= base_url('courses') ?>" class="text-white text-decoration-none d-block py-2"><i class="bi bi-journal-bookmark"></i> Courses</a></li>
 
         <!-- Role-specific links -->
         <?php if (session()->get('role') === 'admin'): ?>
